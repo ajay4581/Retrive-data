@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="c76a8e63-e145-4a07-b7f8-a6af8ee1499c" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="7d47a10f-6659-49a6-a48d-5b8f00000926" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="Miracle@1" database="madhu" />
+	</db:config>
+	<validation:config name="Validation_Config" doc:name="Validation Config" doc:id="fe11189f-34c2-4e21-9d75-9994504b2028" />
+	<flow name="fetch-data-from-database-using-query-parameterFlow" doc:id="35ec9024-5abc-4cfc-9f13-993f15cbd643" >
+		<http:listener doc:name="Listener" doc:id="b6460151-6bb2-45f8-b254-bd5ab5ddfc97" config-ref="HTTP_Listener_config" path="/one" allowedMethods="GET"/>
+		<logger level="INFO" doc:name="input " doc:id="583f6eee-3264-4209-a30d-58bf2a19d937" message="#[attributes.headers.studentid]"/>
+		<validation:is-number doc:name="Is number revice number only" doc:id="530ff028-722d-4bd2-abda-39c96bfba0fc" config-ref="Validation_Config" value="#[attributes.headers.studentid]" numberType="INTEGER"/>
+		<db:select doc:name="database" doc:id="1ec7955c-8be5-40a3-a2b1-87b8d71d155a" config-ref="Database_Config">
+			<db:sql >select * from student where studentid=:studentid</db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"studentid":attributes.headers.studentid
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="8fd7fccc-12d9-48b0-8d32-23c2d70a00c9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="56695821-fa8d-4b66-be75-add1901415a7" type="VALIDATION:INVALID_NUMBER">
+				<ee:transform doc:name="Transform Message" doc:id="a77f25a2-aad2-46d4-9630-fc990b1ff058" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	 "message":"ENTER ONLY INTERGER VALUES"
+}
+]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>

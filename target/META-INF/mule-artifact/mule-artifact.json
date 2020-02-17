@@ -1,0 +1,29 @@
+{
+  "configs": [
+    "fetch-data-from-database-using-query-parameter.xml"
+  ],
+  "secureProperties": [],
+  "redeploymentEnabled": true,
+  "name": "com.mycompany:fetch-data-from-database-using-query-parameter:1.0.0-SNAPSHOT",
+  "minMuleVersion": "4.2.1",
+  "requiredProduct": "MULE_EE",
+  "classLoaderModelLoaderDescriptor": {
+    "id": "mule",
+    "attributes": {
+      "exportedPackages": [],
+      "exportedResources": [
+        "application-types.xml",
+        "examples/response-1.json",
+        "examples/response-2.json",
+        "examples/response-3.json",
+        "examples/response.json",
+        "fetch-data-from-database-using-query-parameter.xml",
+        "log4j2.xml"
+      ]
+    }
+  },
+  "bundleDescriptorLoader": {
+    "id": "mule",
+    "attributes": {}
+  }
+}
